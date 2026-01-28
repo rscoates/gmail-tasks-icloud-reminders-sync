@@ -87,6 +87,49 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/sync_db \
 
 > **First Run**: macOS will prompt you to grant Reminders access. Click "Allow".
 > If the prompt doesn't appear, check System Settings → Privacy & Security → Reminders.
+>
+>
+To manually add Terminal to Reminders access:
+
+1. Open System Preferences (or System Settings on newer macOS)
+1. Go to Privacy & Security → Reminders
+1. Click the lock icon at bottom-left to make changes (enter your password)
+1. Click the "+" button
+1. Press Cmd+Shift+G to open "Go to folder"
+1. Type Utilities and press Enter
+1. Select Terminal.app and click Open
+1. Make sure the checkbox is enabled
+1. If you're using VS Code's integrated terminal, you may need to add Visual Studio Code.app instead (from Applications).
+
+If you're on an older version of macOS 13 (e.g. Ventura), apps should appear automatically when they request access.
+
+Try running the Python script from the actual Terminal.app (not VS Code's integrated terminal):
+
+Open Terminal
+Run this command:
+```
+cd /Users/richard/Coding/gmail-reminder-sync/backend && ./venv/bin/python -c "
+from EventKit import EKEventStore, EKEntityTypeReminder
+from threading import Event
+event_store = EKEventStore.alloc().init()
+done = Event()
+def handler(granted, error):
+    print(f'Access granted: {granted}')
+    done.set()
+event_store.requestAccessToEntityType_completion_(EKEntityTypeReminder, handler)
+done.wait(timeout=60)
+"
+```
+This should trigger a permission dialog from macOS. Once you approve it, Terminal.app will appear in the Reminders privacy list.
+
+Alternatively, you can try resetting the TCC database for Reminders to force the prompt to appear again:
+```
+tccutil reset Reminders
+```
+Then run the Python script again.
+
+After granting access, restart the backend and try the /api/icloud/calendars endpoint again.
+
 
 ### 5. Access the Dashboard
 
