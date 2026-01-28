@@ -1,0 +1,62 @@
+# NOTE: The backend must run natively on macOS (not in Docker) because it uses
+# Apple's EventKit framework (via pyobjc) for accessing iCloud Reminders.
+# 
+# To run the backend:
+#   cd backend
+#   python -m venv venv
+#   source venv/bin/activate
+#   pip install -r requirements.txt
+#   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/sync_db python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+#
+# On first run, macOS will prompt for Reminders access - click Allow.
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: sync-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sync_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend is commented out - must run natively on macOS for EventKit access
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: sync-backend
+  #   environment:
+  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/sync_db
+  #     - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+  #     - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+  #     - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:8000/api/auth/google/callback}
+  #     - DEFAULT_SYNC_INTERVAL_MINUTES=${DEFAULT_SYNC_INTERVAL_MINUTES:-15}
+  #     - APP_SECRET_KEY=${APP_SECRET_KEY:-change-this-in-production}
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sync-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

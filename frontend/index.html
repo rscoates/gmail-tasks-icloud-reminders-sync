@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail-Reminder Sync</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Gmail-Reminder Sync</h1>
+            <p class="subtitle">Synchronize Gmail Tasks with iOS Reminders</p>
+        </header>
+
+        <!-- Status Card -->
+        <div class="card status-card">
+            <h2>📊 Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="label">Scheduler</span>
+                    <span id="scheduler-status" class="badge badge-inactive">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Next Sync</span>
+                    <span id="next-sync">--</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Google</span>
+                    <span id="google-status" class="badge badge-inactive">Not Connected</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">iCloud</span>
+                    <span id="icloud-status" class="badge badge-inactive">Not Connected</span>
+                </div>
+            </div>
+            <div class="last-sync" id="last-sync-container" style="display: none;">
+                <h3>Last Sync</h3>
+                <p id="last-sync-info"></p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <h2>⚡ Quick Actions</h2>
+            <div class="button-group">
+                <button id="sync-now-btn" class="btn btn-primary" onclick="triggerSync()">
+                    🔄 Sync Now
+                </button>
+                <button id="start-scheduler-btn" class="btn btn-success" onclick="startScheduler()">
+                    ▶️ Start Scheduler
+                </button>
+                <button id="stop-scheduler-btn" class="btn btn-danger" onclick="stopScheduler()">
+                    ⏹️ Stop Scheduler
+                </button>
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="card">
+            <h2>🔐 Authentication</h2>
+            
+            <div class="auth-section">
+                <h3>Google Tasks</h3>
+                <div id="google-auth-container">
+                    <button id="google-auth-btn" class="btn btn-google" onclick="connectGoogle()">
+                        Connect Google Account
+                    </button>
+                </div>
+                <div id="google-tasklist-container" style="display: none;">
+                    <label for="google-tasklist">Select Task List:</label>
+                    <select id="google-tasklist" onchange="saveTaskList()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <h3>iCloud Reminders</h3>
+                <p class="help-text">Use an <a href="https://support.apple.com/en-us/HT204397" target="_blank">app-specific password</a> for iCloud.</p>
+                <form id="icloud-form" onsubmit="connectICloud(event)">
+                    <div class="form-group">
+                        <label for="icloud-username">Apple ID Email:</label>
+                        <input type="email" id="icloud-username" placeholder="you@icloud.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="icloud-password">App-Specific Password:</label>
+                        <input type="password" id="icloud-password" placeholder="xxxx-xxxx-xxxx-xxxx" required>
+                    </div>
+                    <button type="submit" class="btn btn-apple">Connect iCloud</button>
+                </form>
+                <div id="icloud-calendar-container" style="display: none;">
+                    <label for="icloud-calendar">Select Reminder List:</label>
+                    <select id="icloud-calendar" onchange="saveCalendar()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="card">
+            <h2>⚙️ Settings</h2>
+            <form id="settings-form" onsubmit="saveSettings(event)">
+                <div class="form-group">
+                    <label for="sync-interval">Sync Interval (minutes):</label>
+                    <input type="number" id="sync-interval" min="1" max="1440" value="15" required>
+                </div>
+                <div class="form-group">
+                    <label for="sync-direction">Sync Direction:</label>
+                    <select id="sync-direction">
+                        <option value="bidirectional">Bidirectional</option>
+                        <option value="gmail_to_icloud">Gmail → iCloud</option>
+                        <option value="icloud_to_gmail">iCloud → Gmail</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+        </div>
+
+        <!-- Sync History -->
+        <div class="card">
+            <h2>📜 Sync History</h2>
+            <div id="sync-history">
+                <p class="loading">Loading...</p>
+            </div>
+            <button class="btn btn-secondary" onclick="loadSyncLogs()">Refresh</button>
+        </div>
+
+        <!-- Notifications -->
+        <div id="notification" class="notification" style="display: none;"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
