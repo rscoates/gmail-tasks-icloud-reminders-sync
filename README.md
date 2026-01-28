@@ -106,9 +106,9 @@ If you're on an older version of macOS 13 (e.g. Ventura), apps should appear aut
 Try running the Python script from the actual Terminal.app (not VS Code's integrated terminal):
 
 Open Terminal
-Run this command:
+Run something like this command (depending on whether you're in a venv or not):
 ```
-cd /Users/richard/Coding/gmail-reminder-sync/backend && ./venv/bin/python -c "
+./venv/bin/python -c "
 from EventKit import EKEventStore, EKEntityTypeReminder
 from threading import Event
 event_store = EKEventStore.alloc().init()
